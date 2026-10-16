@@ -364,6 +364,175 @@ input,textarea{font-family:inherit}
 @media (max-width:1250px){#npPanel{width:290px}}
 @media (max-width:1050px){#npPanel{display:none!important}}
 @media (max-width:900px){#sidebar{display:none}#queuePanel{width:min(320px,92vw)}.srch-grid{grid-template-columns:1fr}#vstage.vs-mini{width:min(264px,80vw)}}
+
+/* ===== Mobile responsive layout (768px and below) ===== */
+@media (max-width:768px){
+  /* App uses full height with bottom nav */
+  #app{height:100dvh}
+  .main-row{padding:0;gap:0}
+  #main{width:100%}
+  #mainScroll{padding-bottom:calc(var(--pb) + 56px + env(safe-area-inset-bottom,0px))}
+
+  /* Simplified player bar for mobile */
+  :root{--pb:64px}
+  #pbar{
+    grid-template-columns:1fr auto;
+    padding:0 8px;
+    padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));
+    gap:4px;
+    height:calc(var(--pb) + 56px);
+    align-items:flex-start;
+    padding-top:6px;
+  }
+  #pbar .pb-left{gap:8px}
+  #pbCover{width:44px;height:44px;border-radius:4px}
+  #pbTitle{font-size:13px}
+  #pbArtist{font-size:11px}
+  #pbar .pb-center{
+    display:none; /* hidden on mobile — controls move to pb-left */
+  }
+  #pbar .pb-right{
+    display:none; /* hidden on mobile */
+  }
+  /* Mobile play/pause + next buttons inline */
+  .pb-mobile-ctrls{
+    display:flex;align-items:center;gap:2px;flex:none;
+  }
+  .pb-mobile-ctrls .ibtn{width:36px;height:36px}
+  .pb-mobile-ctrls .pb-play{width:40px;height:40px}
+  .pb-mobile-ctrls .pb-play svg{width:20px;height:20px}
+
+  /* Mobile progress bar (thin line at top of player bar) */
+  .pb-mobile-prog{
+    position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.1);
+  }
+  .pb-mobile-prog .fill{height:100%;background:var(--green-b);transition:width .3s linear}
+
+  /* Topbar adjustments */
+  #topbar{padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px !important}
+  .tb-circle{width:32px !important;height:32px !important}
+  .tb-circle svg{width:18px !important;height:18px !important}
+  .s-pill{max-width:none !important;width:100% !important}
+  .s-pill input{font-size:14px !important;padding:8px 12px !important}
+
+  /* Page content padding */
+  .page{padding:12px !important}
+  .greet{font-size:24px !important}
+  .sh-head h2{font-size:16px !important}
+  .sh-row{gap:10px !important;padding-bottom:10px !important}
+  .card{width:140px !important;padding:8px !important}
+  .ccov img{border-radius:6px}
+  .card .c-name{font-size:13px !important}
+  .card .c-sub{font-size:11px !important}
+  .fab{width:40px !important;height:40px !important;opacity:1 !important;visibility:visible !important;transform:none !important}
+  .fab svg{width:18px !important;height:18px !important}
+
+  /* Search results */
+  .trow{padding:6px !important}
+  .trow img.art{width:44px !important;height:44px !important}
+  .trow .te{font-size:13px !important}
+  .trow .ta{font-size:11px !important}
+
+  /* Downloads cards stack on mobile */
+  .dl-grid{grid-template-columns:1fr !important}
+  .dl-hero{padding:16px !important;flex-direction:column;text-align:center;gap:12px}
+  .dl-hero-text h1{font-size:24px !important}
+  .dl-hero-text p{font-size:13px !important}
+  .dl-card{padding:14px !important;flex-wrap:wrap}
+  .dl-dl{width:100%;justify-content:center;margin-top:8px}
+
+  /* Modals */
+  .modal-box{width:min(94vw,420px) !important;max-height:88vh !important}
+}
+
+/* ===== Mobile bottom navigation (shown only on mobile) ===== */
+#mobileNav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  height:56px;
+  border-top:1px solid var(--line);
+  background:rgba(10,10,10,.97);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+#mobileNav .mn-inner{
+  display:flex;height:56px;align-items:stretch;
+}
+#mobileNav .mn-it{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  color:var(--sub);transition:color .15s;
+}
+#mobileNav .mn-it.on{color:#fff}
+#mobileNav .mn-it svg{width:22px;height:22px}
+#mobileNav .mn-it span{font-size:10px;font-weight:500}
+#mobileNav .mn-it .dl-badge{
+  position:absolute;top:4px;right:50%;transform:translateX(16px);
+  background:var(--green);color:#000;font-size:8px;font-weight:800;
+  padding:1px 5px;border-radius:99px;
+}
+
+@media (max-width:768px){
+  #mobileNav{display:block}
+}
+
+/* ===== Floating "Get the app!" button (mobile only) ===== */
+#getAppFab{
+  display:none;
+  position:fixed;bottom:calc(56px + env(safe-area-inset-bottom,0px) + 72px);right:12px;z-index:40;
+  align-items:center;gap:6px;
+  background:var(--green);color:#000;
+  padding:10px 16px;border-radius:99px;
+  font-size:13px;font-weight:800;
+  box-shadow:0 4px 20px rgba(29,185,84,.5);
+  animation:pulseFab 2s ease-in-out infinite;
+  transition:transform .15s;
+}
+#getAppFab:active{transform:scale(.95)}
+#getAppFab svg{width:16px;height:16px}
+#getAppFab .fab-arrow{
+  position:absolute;left:-36px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;background:var(--green);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  animation:bounceRight 1s ease-in-out infinite;
+}
+#getAppFab .fab-arrow svg{width:16px;height:16px}
+@keyframes pulseFab{0%,100%{box-shadow:0 4px 20px rgba(29,185,84,.5)}50%{box-shadow:0 4px 30px rgba(29,185,84,.8)}}
+@keyframes bounceRight{0%,100%{transform:translateY(-50%) translateX(0)}50%{transform:translateY(-50%) translateX(-6px)}}
+
+@media (max-width:768px){
+  #getAppFab{display:flex}
+}
+
+/* ===== Downloads view ===== */
+.dl-hero{display:flex;align-items:center;gap:20px;padding:24px;border-radius:16px;background:linear-gradient(135deg,rgba(29,185,84,.3),rgba(29,185,84,.05));margin-bottom:28px}
+.dl-hero-logo{flex-shrink:0}
+.dl-hero-text h1{font-size:32px;font-weight:900;letter-spacing:-.03em;margin-bottom:4px}
+.dl-hero-text p{color:var(--sub);font-size:15px;max-width:480px;line-height:1.5}
+.dl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:32px}
+.dl-card{display:flex;align-items:flex-start;gap:16px;padding:20px;border-radius:12px;background:var(--panel2);text-decoration:none;color:inherit;transition:background .2s,transform .1s;border:1px solid transparent}
+.dl-card:hover{background:var(--card-h);border-color:var(--line)}
+.dl-card:active{transform:scale(.99)}
+.dl-ic{width:52px;height:52px;border-radius:12px;background:var(--dlc);color:#000;display:grid;place-items:center;flex-shrink:0}
+.dl-ic svg{width:26px;height:26px}
+.dl-info{flex:1;min-width:0}
+.dl-name{font-size:17px;font-weight:800;margin-bottom:2px}
+.dl-meta{font-size:12px;color:var(--sub);margin-bottom:8px}
+.dl-desc{font-size:12px;color:var(--sub);line-height:1.5}
+.dl-dl{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;background:var(--dlc);color:#000;font-size:13px;font-weight:700;flex-shrink:0;align-self:center}
+.dl-dl svg{width:16px;height:16px}
+.dl-steps{margin-bottom:28px}
+.dl-steps h2{font-size:20px;font-weight:800;margin-bottom:16px}
+.dl-step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start}
+.dl-n{width:28px;height:28px;border-radius:50%;background:var(--green);color:#000;font-size:13px;font-weight:800;display:grid;place-items:center;flex-shrink:0;margin-top:2px}
+.dl-step div{font-size:14px;color:var(--sub);line-height:1.55}
+.dl-step b{color:var(--txt)}
+.dl-step code{background:rgba(30,215,96,.15);color:var(--green-b);padding:2px 6px;border-radius:4px;font-size:12px}
+.dl-faq{padding:20px;border-radius:12px;background:var(--panel2)}
+.dl-faq h2{font-size:18px;font-weight:800;margin-bottom:12px}
+.dl-faq p{font-size:14px;color:var(--sub);line-height:1.6;margin-bottom:10px}
+.dl-faq p:last-child{margin-bottom:0}
+.dl-faq b{color:var(--txt)}
 </style>
 </head>
 <body>
@@ -399,6 +568,7 @@ input,textarea{font-family:inherit}
       <div class="sb-panel sb-nav">
         <button class="nav-it act" data-act="nav" data-nav="home"><i data-lucide="home"></i><span>Home</span></button>
         <button class="nav-it" data-act="nav" data-nav="search"><i data-lucide="search"></i><span>Search</span></button>
+        <button class="nav-it" data-act="nav" data-nav="downloads"><i data-lucide="download"></i><span>Downloads</span></button>
       </div>
       <div class="sb-panel sb-lib">
         <div class="lib-head">
@@ -447,6 +617,31 @@ input,textarea{font-family:inherit}
       <div class="sld vol" id="sldVol"><div class="sld-track"><div class="sld-fill"></div><div class="sld-thumb"></div></div></div>
     </div>
   </footer>
+
+  <!-- Mobile bottom navigation (Home / Search / Downloads) -->
+  <nav id="mobileNav" aria-label="Mobile navigation">
+    <div class="mn-inner">
+      <button class="mn-it on" data-mnav="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="mn-it" data-mnav="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Search</span>
+      </button>
+      <button class="mn-it" data-mnav="downloads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+        <span>App</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Floating "Get the app!" button (mobile only) -->
+  <button id="getAppFab" title="Get the app!">
+    <div class="fab-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+    Get the app!
+  </button>
 </div>
 
 <div id="vstage" class="off">
@@ -2584,6 +2779,7 @@ function renderView(){
   if(v.n==='home')html=vHome();
   else if(v.n==='search')html=vSearch();
   else if(v.n==='library')html=vLibrary();
+  else if(v.n==='downloads')html=vDownloads();
   else if(v.n==='playlist')html=vPlaylist(v.id);
   else if(v.n==='artist')html=vArtist(v.id);
   else if(v.n==='user')html=vUser(v.id);
@@ -2591,7 +2787,7 @@ function renderView(){
   icons($('#view'));updateActiveRows();hydrateArtistImgs($('#view'));
   $('#topbar').style.setProperty('--tbg',S.hdr);
   $('#topbar').classList.toggle('solid',$('#mainScroll').scrollTop>64);
-  $$('#sidebar .nav-it').forEach(b=>b.classList.toggle('act',(v.n==='home'&&b.dataset.nav==='home')||(v.n==='search'&&b.dataset.nav==='search')));
+  $$('#sidebar .nav-it').forEach(b=>b.classList.toggle('act',(v.n==='home'&&b.dataset.nav==='home')||(v.n==='search'&&b.dataset.nav==='search')||(v.n==='downloads'&&b.dataset.nav==='downloads')));
   if(v.n==='search')updateSearch(S.q);
   if(v.n==='home'){
     loadPopular().then(renderPop).catch(()=>{
@@ -2635,6 +2831,49 @@ function vLibrary(){
 function vSearch(){
   S.hdr='#121212';
   return `<div class="page"><div id="searchRes"></div></div>`;
+}
+
+/* ===== Downloads view ===== */
+/* CONFIG: Set DOWNLOADS_BASE to the URL of your Vercel-deployed GitHub repo
+   where the app files live (sonora.apk, sonora-windows.zip, sonora-linux.AppImage).
+   The download buttons fetch files from here — the user stays on this website. */
+const DOWNLOADS_BASE = 'https://songora.vercel.app';
+function vDownloads(){
+  S.hdr='#121212';
+  const platforms = [
+    { name:'Android', icon:'smartphone', file:'sonora.apk', size:'5 MB', req:'Android 7.0+', desc:'Install the APK on your phone. Works offline — download songs inside the app and play without internet.', color:'#1DB954' },
+    { name:'Windows', icon:'monitor', file:'sonora-windows.zip', size:'158 MB', req:'Windows 10+', desc:'Download the ZIP, extract it, and run Sonora.exe. Offline downloads supported.', color:'#1DB954' },
+    { name:'Linux', icon:'terminal', file:'sonora-linux.AppImage', size:'125 MB', req:'Any distro', desc:'Download the AppImage, make it executable (chmod +x), and run. Offline downloads supported.', color:'#1DB954' },
+    { name:'iOS', icon:'apple', file:null, size:'PWA', req:'Safari', desc:'Open this website in Safari on your iPhone, tap the Share button, then "Add to Home Screen". Works as a PWA with offline support.', color:'#ffffff' },
+  ];
+  let cards = platforms.map(p => {
+    if (p.file) {
+      const url = DOWNLOADS_BASE + '/' + p.file;
+      return `<a class="dl-card" href="${url}" download="${p.file}" style="--dlc:${p.color}">
+        <div class="dl-ic"><i data-lucide="${p.icon}"></i></div>
+        <div class="dl-info"><div class="dl-name">${p.name}</div><div class="dl-meta">${p.size} · ${p.req}</div><div class="dl-desc">${p.desc}</div></div>
+        <div class="dl-dl"><i data-lucide="download"></i> Download</div></a>`;
+    } else {
+      return `<a class="dl-card" href="#" onclick="alert('${p.desc.replace(/'/g,"\\'")}');return false;" style="--dlc:${p.color}">
+        <div class="dl-ic"><i data-lucide="${p.icon}"></i></div>
+        <div class="dl-info"><div class="dl-name">${p.name}</div><div class="dl-meta">${p.size} · ${p.req}</div><div class="dl-desc">${p.desc}</div></div>
+        <div class="dl-dl"><i data-lucide="info"></i> How to</div></a>`;
+    }
+  }).join('');
+  return `<div class="page">
+    <div class="dl-hero"><div class="dl-hero-logo"><svg viewBox="0 0 32 32" width="48" height="48"><rect width="32" height="32" rx="7" fill="#1DB954"/><g fill="#000"><rect x="8" y="13" width="3" height="6" rx="1.5"/><rect x="14" y="9" width="3" height="14" rx="1.5"/><rect x="20" y="11" width="3" height="10" rx="1.5"/></g></svg></div>
+      <div class="dl-hero-text"><h1>Get Sonora</h1><p>Any song. Zero ads. Stream and download music for offline playback — on any device.</p></div></div>
+    <div class="dl-grid">${cards}</div>
+    <div class="dl-steps"><h2>Quick setup</h2>
+      <div class="dl-step"><span class="dl-n">1</span><div><b>Android:</b> Download the APK, open it in your Files app, tap Install. If Android warns about unknown sources, tap Settings → allow.</div></div>
+      <div class="dl-step"><span class="dl-n">2</span><div><b>Windows:</b> Download the ZIP, extract it, double-click <code>Sonora.exe</code>. Windows may warn — click "More info" → "Run anyway".</div></div>
+      <div class="dl-step"><span class="dl-n">3</span><div><b>Linux:</b> Download the AppImage, run <code>chmod +x sonora-linux.AppImage</code> in a terminal, then double-click to run.</div></div>
+      <div class="dl-step"><span class="dl-n">4</span><div><b>iOS:</b> Open this page in Safari → Share → "Add to Home Screen". Works as a PWA.</div></div>
+    </div>
+    <div class="dl-faq"><h2>About offline downloads</h2>
+      <p>In the app, search any song and tap the download icon (↓) next to it. The song saves to your device and plays without internet. On Android and desktop, this works without any server — the app fetches audio directly.</p>
+      <p><b>All songs work:</b> Sonora uses SoundCloud + YouTube. If a song isn't on SoundCloud (like popular Kanye West tracks), it plays from YouTube automatically.</p>
+    </div></div>`;
 }
 function localPool(){
   const seen=new Set(),pool=[];
@@ -3867,6 +4106,51 @@ function startApp(){
   /* even if boot partially fails, keep the login screen usable */
   console.error('boot failed',e);
 }})();
+
+/* ===== Mobile navigation wiring ===== */
+(function(){
+  // Wire mobile nav buttons
+  $$('#mobileNav .mn-it').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.mnav;
+      go({n: target});
+      // Update active states
+      $$('#mobileNav .mn-it').forEach(b => b.classList.toggle('on', b === btn));
+    });
+  });
+
+  // Wire floating "Get the app!" button
+  const fab = $('#getAppFab');
+  if (fab) {
+    fab.addEventListener('click', () => {
+      go({n: 'downloads'});
+      $$('#mobileNav .mn-it').forEach(b => b.classList.toggle('on', b.dataset.mnav === 'downloads'));
+      // Hide the FAB after first click (user has seen the downloads tab)
+      fab.style.display = 'none';
+      try { localStorage.setItem('sonora.fabDismissed', '1'); } catch {}
+    });
+    // Don't show FAB if already dismissed
+    try { if (localStorage.getItem('sonora.fabDismissed')) fab.style.display = 'none'; } catch {}
+  }
+
+  // Keep mobile nav in sync with view changes
+  const origGo = window.go;
+  if (origGo) {
+    window.go = function(view, push) {
+      const result = origGo(view, push);
+      // Update mobile nav active state
+      $$('#mobileNav .mn-it').forEach(b => {
+        b.classList.toggle('on', b.dataset.mnav === view.n);
+      });
+      // Scroll mobile nav into view if it's a nav target
+      if (view.n === 'home' || view.n === 'search' || view.n === 'downloads') {
+        const it = $('#mobileNav .mn-it[data-mnav="' + view.n + '"]');
+        if (it) it.scrollIntoView({ block: 'nearest' });
+      }
+      return result;
+    };
+  }
+})();
 </script>
 </body>
 </html>
