@@ -519,8 +519,9 @@ input,textarea{font-family:inherit}
 .dl-name{font-size:17px;font-weight:800;margin-bottom:2px}
 .dl-meta{font-size:12px;color:var(--sub);margin-bottom:8px}
 .dl-desc{font-size:12px;color:var(--sub);line-height:1.5}
-.dl-dl{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;background:var(--dlc);color:#000;font-size:13px;font-weight:700;flex-shrink:0;align-self:center}
+.dl-dl{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;background:var(--dlc);color:#000;font-size:13px;font-weight:700;flex-shrink:0;align-self:center;cursor:pointer;border:0;font-family:inherit;transition:background .2s}
 .dl-dl svg{width:16px;height:16px}
+.dl-spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite}
 .dl-steps{margin-bottom:28px}
 .dl-steps h2{font-size:20px;font-weight:800;margin-bottom:16px}
 .dl-step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start}
@@ -2834,10 +2835,120 @@ function vSearch(){
 }
 
 /* ===== Downloads view ===== */
-/* CONFIG: Set DOWNLOADS_BASE to the URL of your Vercel-deployed GitHub repo
-   where the app files live (sonora.apk, sonora-windows.zip, sonora-linux.AppImage).
-   The download buttons fetch files from here — the user stays on this website. */
-const DOWNLOADS_BASE = 'https://songora.vercel.app';
+/* CONFIG: Fill in your GitHub repo info so downloads fetch the REAL binary
+   (Git LFS pointer files are tiny text — the actual binary lives at the
+   media.githubusercontent.com endpoint).
+   The download buttons fetch files via JavaScript (user stays on the site)
+   and try multiple sources in order until one returns a real binary. */
+const DL_CONFIG = {
+  // Your GitHub username + repo name (where the files live):
+  githubUser: 'imamroblox481-botal',
+  githubRepo: 'Sonora',
+  githubBranch: 'main',
+  // Your Vercel deployment URL (same origin, might serve the files directly):
+  vercelUrl: 'https://songora.vercel.app',
+};
+
+/* Smart download: tries multiple URLs, fetches via blob, shows progress.
+   The user stays on the website — the file downloads in the background. */
+async function smartDownload(file, btnEl) {
+  const sources = [
+    // 1. GitHub LFS media endpoint — ALWAYS serves the real binary (not the pointer)
+    `https://media.githubusercontent.com/media/${DL_CONFIG.githubUser}/${DL_CONFIG.githubRepo}/${DL_CONFIG.githubBranch}/${file}`,
+    // 2. Vercel deployment (same origin — might work if LFS is disabled or Vercel LFS is on)
+    `${DL_CONFIG.vercelUrl}/${file}`,
+    // 3. GitHub raw URL (serves pointer for LFS files, real binary for non-LFS)
+    `https://raw.githubusercontent.com/${DL_CONFIG.githubUser}/${DL_CONFIG.githubRepo}/${DL_CONFIG.githubBranch}/${file}`,
+    // 4. Relative URL (works if the file is on the same origin as this page)
+    `./${file}`,
+  ];
+
+  // Show progress UI
+  const card = btnEl.closest('.dl-card');
+  const originalHTML = card.querySelector('.dl-dl').innerHTML;
+  const dlBtn = card.querySelector('.dl-dl');
+  dlBtn.innerHTML = '<span class="dl-spin"></span> Searching…';
+  dlBtn.style.pointerEvents = 'none';
+
+  for (let i = 0; i < sources.length; i++) {
+    const url = sources[i];
+    try {
+      dlBtn.innerHTML = `<span class="dl-spin"></span> Source ${i+1}…`;
+
+      // HEAD-like check: fetch with no-cors first to see if it exists
+      // Actually, just fetch it directly — GitHub allows CORS on raw/media
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) continue;
+
+      // Get the total size for progress
+      const total = parseInt(res.headers.get('content-length') || '0', 10);
+
+      // Read the body with progress tracking
+      const reader = res.body.getReader();
+      const chunks = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        const pct = total > 0 ? Math.round((received / total) * 100) : 0;
+        const mb = (received / 1048576).toFixed(1);
+        dlBtn.innerHTML = `<span class="dl-spin"></span> ${pct}% · ${mb}MB`;
+      }
+
+      const blob = new Blob(chunks);
+
+      // CHECK: is this an LFS pointer? (Git LFS pointer files start with
+      // "version https://git-lfs.github.com/spec/v1")
+      if (blob.size < 500) {
+        const text = await blob.text();
+        if (text.startsWith('version https://git-lfs')) {
+          // It's an LFS pointer, not the real file — try the next source
+          continue;
+        }
+      }
+
+      // We got the real file! Trigger the download.
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objUrl;
+      a.download = file;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objUrl), 60000);
+
+      // Success UI
+      dlBtn.innerHTML = '<i data-lucide="check"></i> Downloaded!';
+      dlBtn.style.background = '#1ed760';
+      if (window.lucide) window.lucide.createIcons({ nodes: [dlBtn] });
+      setTimeout(() => {
+        dlBtn.innerHTML = originalHTML;
+        dlBtn.style.pointerEvents = '';
+        dlBtn.style.background = '';
+        if (window.lucide) window.lucide.createIcons({ nodes: [dlBtn] });
+      }, 3000);
+      return;
+
+    } catch (e) {
+      // Network error or CORS — try next source
+      continue;
+    }
+  }
+
+  // All sources failed
+  dlBtn.innerHTML = '<i data-lucide="x"></i> Failed';
+  dlBtn.style.background = '#E91429';
+  if (window.lucide) window.lucide.createIcons({ nodes: [dlBtn] });
+  setTimeout(() => {
+    dlBtn.innerHTML = originalHTML;
+    dlBtn.style.pointerEvents = '';
+    dlBtn.style.background = '';
+    if (window.lucide) window.lucide.createIcons({ nodes: [dlBtn] });
+  }, 3000);
+}
+
 function vDownloads(){
   S.hdr='#121212';
   const platforms = [
@@ -2848,11 +2959,10 @@ function vDownloads(){
   ];
   let cards = platforms.map(p => {
     if (p.file) {
-      const url = DOWNLOADS_BASE + '/' + p.file;
-      return `<a class="dl-card" href="${url}" download="${p.file}" style="--dlc:${p.color}">
+      return `<div class="dl-card" style="--dlc:${p.color}">
         <div class="dl-ic"><i data-lucide="${p.icon}"></i></div>
         <div class="dl-info"><div class="dl-name">${p.name}</div><div class="dl-meta">${p.size} · ${p.req}</div><div class="dl-desc">${p.desc}</div></div>
-        <div class="dl-dl"><i data-lucide="download"></i> Download</div></a>`;
+        <button class="dl-dl" onclick="smartDownload('${p.file}', this)"><i data-lucide="download"></i> Download</button></div>`;
     } else {
       return `<a class="dl-card" href="#" onclick="alert('${p.desc.replace(/'/g,"\\'")}');return false;" style="--dlc:${p.color}">
         <div class="dl-ic"><i data-lucide="${p.icon}"></i></div>
